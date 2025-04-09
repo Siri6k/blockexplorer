@@ -214,6 +214,8 @@ const HomePage = ({ provider }) => {
   const [activeTab, setActiveTab] = useState("blocks");
   const [latestBlockNumber, setLatestBlockNumber] = useState("");
   const [transactions, setTransactions] = useState([]);
+  const [showMore, setShowMore] = useState(true);
+  const [showMoreCount, setShowMoreCount] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -221,11 +223,21 @@ const HomePage = ({ provider }) => {
 
       setLatestBlockNumber(blockNumber);
 
-      const blockWithTxs = await provider.getBlockWithTransactions(blockNumber);
-      setTransactions(blockWithTxs.transactions.slice(0, 5));
+      const txs = await provider.getBlock(blockNumber);
+      txs.transactions.forEach((txHash) => {
+        setTransactions((prev) => [...prev, txHash]);
+      });
     };
     fetchData();
   }, [provider]);
+
+  const showMoreTransactions = () => {
+    setShowMoreCount((prev) => prev + 5);
+    if (showMoreCount > transactions.length - 1) {
+      setShowMoreCount(transactions.length - 1);
+      setShowMore(false);
+    }
+  };
 
   return (
     <>
@@ -243,14 +255,23 @@ const HomePage = ({ provider }) => {
         </Tab>
         <Tab eventKey="transactions" title="Latest Transactions">
           <Row xs={1} className="g-4">
-            {transactions.map((tx) => (
-              <Col key={tx.hash}>
-                <TransactionCard tx={tx} />
+            {transactions.slice(0, showMoreCount).map((tx, index) => (
+              <Col key={index}>
+                <TransactionCard txHash={tx} />
               </Col>
             ))}
           </Row>
         </Tab>
       </Tabs>
+      {showMore && (
+        <Button
+          variant="primary"
+          onClick={showMoreTransactions}
+          className="mt-3 text-center w-100"
+        >
+          Show More Transactions
+        </Button>
+      )}
     </>
   );
 };
