@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ethers } from "ethers";
 import { Card, Spinner, Badge } from "react-bootstrap";
 
-const TransactionPage = ({ provider }) => {
+import { formatWeiToEth, formatGas } from "../utils/settings";
+
+const TransactionPage = (props) => {
   const { txHash } = useParams();
   const [tx, setTx] = useState(null);
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const transaction = await provider.getTransaction(txHash);
-      const receipt = await provider.getTransactionReceipt(txHash);
+      const transaction = await props.provider.getTransaction(txHash);
+      const receipt = await props.provider.getTransactionReceipt(txHash);
       setTx(transaction);
       setReceipt(receipt);
     };
     fetchData();
-  }, [txHash, provider]);
+  }, [txHash, props.provider]);
 
   if (!tx) return <Spinner animation="border" />;
 
@@ -35,13 +37,30 @@ const TransactionPage = ({ provider }) => {
           </Badge>
         </p>
         <p>
+          <strong>Block: </strong>
+          <Link
+            to={`/block/${parseInt(tx.blockNumber)}`}
+            className="text-decoration-none block-link"
+          >
+            {tx.blockNumber}
+          </Link>
+        </p>
+
+        <p>
           <strong>From:</strong> {tx.from}
         </p>
         <p>
           <strong>To:</strong> {tx.to || "Contract Creation"}
         </p>
         <p>
-          <strong>Value:</strong> {ethers.formatEther(tx.value)} ETH
+          <strong>Value:</strong> {formatWeiToEth(tx.value)} ETH
+        </p>
+        <p>
+          <strong>Confirmations: </strong> {tx.confirmations} confirmations
+        </p>
+        <p>
+          <strong>Gas Price: </strong> {formatGas(tx.gasPrice)} Gwei{" "}
+          {formatWeiToEth(tx.gasPrice)} ETH
         </p>
       </Card.Body>
     </Card>

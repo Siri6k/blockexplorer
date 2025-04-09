@@ -41,7 +41,7 @@ const BlockCard = (props) => {
         {error && <Alert variant="danger">{error}</Alert>}
 
         {loading ? (
-          <div className="text-left">
+          <div className="text-center">
             <Spinner animation="border" variant="primary" />
             <p className="mt-2">Loading block data...</p>
           </div>
@@ -57,7 +57,7 @@ const BlockCard = (props) => {
               <strong>Hash:</strong>{" "}
               <small className="text-muted">
                 <span onClick={() => navigate(`/block/${block.number}`)}>
-                  {block.hash.slice(0, 30)}...{block.hash.slice(-4)}
+                  {block.hash.slice(0, 20)}...{block.hash.slice(-4)}
                 </span>
               </small>
             </p>
@@ -72,7 +72,7 @@ const BlockCard = (props) => {
             <p>
               <strong>Miner:</strong>{" "}
               <small className="text-muted">
-                {block.miner.slice(0, 15)}...{block.miner.slice(-4)}
+                {block.miner.slice(0, 20)}...{block.miner.slice(-4)}
               </small>
             </p>
           </div>

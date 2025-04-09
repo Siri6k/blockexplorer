@@ -11,6 +11,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { ethers } from "ethers";
+import { formatWeiToEth, formatGas } from "../utils/settings";
 
 const BlockPage = (props) => {
   const { blockNumber } = useParams();
@@ -20,6 +21,7 @@ const BlockPage = (props) => {
   const [error, setError] = useState(null);
   const [showMore, setShowMore] = useState(true);
   const [showMoreCount, setShowMoreCount] = useState(5);
+  const [currentBlockNumber, setCurrentBlockNumber] = useState(0);
 
   const fetchBlockData = async () => {
     setError(null);
@@ -27,6 +29,7 @@ const BlockPage = (props) => {
 
     try {
       const blockData = await props.provider.getBlock(parseInt(blockNumber));
+      const currentBlockNumber = await props.provider.getBlockNumber();
 
       if (!blockData) {
         setError("No block data available.");
@@ -35,7 +38,7 @@ const BlockPage = (props) => {
       }
 
       setBlock(blockData);
-
+      setCurrentBlockNumber(currentBlockNumber);
       blockData.transactions.forEach(async (txHash) => {
         const tx = await props.provider.getTransaction(txHash);
         if (!tx) {
@@ -94,21 +97,6 @@ const BlockPage = (props) => {
     return date.toLocaleString();
   };
 
-  const formatWeiToEth = (wei) => {
-    const intValue = wei.toString(); // Convert to string representation
-    const ethValue = ethers.formatUnits(intValue, "ether");
-    return parseFloat(ethValue).toFixed(4);
-  };
-
-  const formatGas = (gas) => {
-    // Already a BigNumber, no need for parseUnits
-    const intValue = gas.toString(); // Convert to string representation
-
-    // Convert to Gwei
-    const gasPriceInGwei = ethers.formatUnits(intValue, "gwei");
-    return parseFloat(gasPriceInGwei).toFixed(2);
-  };
-
   return (
     <Container className="py-4">
       <h2 className="mb-4">Block #{block.number}</h2>
@@ -133,6 +121,25 @@ const BlockPage = (props) => {
                     <td>{block.number}</td>
                   </tr>
                   <tr>
+                    <td className="text-muted">Status:</td>
+                    <td>
+                      {block ? (
+                        <>
+                          {currentBlockNumber !== 0 &&
+                          currentBlockNumber - block.number >= 12 ? (
+                            <span className="badge bg-success">Finalized</span>
+                          ) : (
+                            <span className="badge bg-warning text-dark">
+                              {currentBlockNumber - block.number} Confirmations
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="badge bg-secondary">Loading...</span>
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
                     <td className="text-muted">Timestamp:</td>
                     <td>{formatTimestamp(block.timestamp)}</td>
                   </tr>
@@ -152,7 +159,12 @@ const BlockPage = (props) => {
                   <tr>
                     <td className="text-muted text-break">Miner:</td>
                     <td className="text-break">
-                      <Link to={`/address/${block.miner}`}>{block.miner}</Link>
+                      <Link
+                        to={`/address/${block.miner}`}
+                        className="text-decoration-none block-link"
+                      >
+                        {block.miner.slice(0, 20)}...{block.miner.slice(-4)}
+                      </Link>
                     </td>
                   </tr>
                 </tbody>
@@ -174,8 +186,12 @@ const BlockPage = (props) => {
                   <tr>
                     <td className="text-muted">Parent Hash:</td>
                     <td className="font-monospace text-break">
-                      <Link to={`/block/${block.number - 1}`}>
-                        {block.parentHash}
+                      <Link
+                        to={`/block/${block.number - 1}`}
+                        className="text-decoration-none block-link"
+                      >
+                        {block.parentHash.slice(0, 20)}...
+                        {block.parentHash.slice(-10)}
                       </Link>
                     </td>
                   </tr>
