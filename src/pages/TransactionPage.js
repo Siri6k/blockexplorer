@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ethers } from "ethers";
 import { Card, Spinner, Badge } from "react-bootstrap";
 
 import { formatWeiToEth, formatGas } from "../utils/settings";
@@ -47,10 +46,26 @@ const TransactionPage = (props) => {
         </p>
 
         <p>
-          <strong>From:</strong> {tx.from}
+          <strong>From: </strong>
+          <Link
+            to={`/address/${tx.from}`}
+            className="text-decoration-none block-link"
+          >
+            {tx.from}
+          </Link>{" "}
         </p>
         <p>
-          <strong>To:</strong> {tx.to || "Contract Creation"}
+          <strong>To: </strong>
+          {tx.to ? (
+            <Link
+              to={`/address/${tx.to}`}
+              className="text-decoration-none block-link"
+            >
+              {tx.to}
+            </Link>
+          ) : (
+            "Contract creation"
+          )}
         </p>
         <p>
           <strong>Value:</strong> {formatWeiToEth(tx.value)} ETH

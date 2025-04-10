@@ -72,12 +72,28 @@ const EthereumTransactionCard = (props) => {
             </p>
             <p>
               <strong>From:</strong>{" "}
-              <small className="text-muted">{transaction.from}</small>
+              <small className="text-muted">
+                <Link
+                  to={`/address/${transaction.from}`}
+                  className="text-decoration-none block-link"
+                >
+                  {transaction.from}
+                </Link>{" "}
+              </small>
             </p>
             <p>
               <strong>To:</strong>{" "}
               <small className="text-muted">
-                {transaction.to || "Contract Creation"}
+                {transaction.to ? (
+                  <Link
+                    to={`/address/${transaction.to}`}
+                    className="text-decoration-none block-link"
+                  >
+                    {transaction.to}
+                  </Link>
+                ) : (
+                  "Contract creation"
+                )}
               </small>
             </p>
             <p>

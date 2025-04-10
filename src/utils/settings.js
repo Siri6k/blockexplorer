@@ -12,7 +12,7 @@ const settings = {
 const alchemy = new Alchemy(settings);
 export default alchemy;
 
-const formatDecimal = (number) => {
+export const formatDecimal = (number) => {
   // Convertir en string et supprimer les zéros non significatifs
   const str = number.toString();
 
